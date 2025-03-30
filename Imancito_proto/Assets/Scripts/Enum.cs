@@ -4,14 +4,21 @@ namespace Code
     {
         Grounded,
         Jump,
-        Fall
+        Fall,
+        Magnet
     }
 
-    public enum TypeGravity
+    public enum PlayerMechanics
     {
-        InitialJump,
-        JumpGravity,
-        FallGravity,
-        MaxFallSpeed
+        Attract,
+        Repel
     }
+
+    public enum Magnet
+    {
+        Up,
+        Down
+    }
+
+    
 }

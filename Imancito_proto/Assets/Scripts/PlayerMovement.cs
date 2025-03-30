@@ -5,7 +5,6 @@ using AideTool.Extensions;
 using Code;
 using Core.Input;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -15,10 +14,10 @@ public class PlayerMovement : MonoBehaviour
     [Foldout("Variables"),SerializeField] private float m_speed;
     [SerializeField] private float m_jumpForce;
     [SerializeField] private float m_gravity= -20f;
+    [SerializeField] public float m_magnetForce= 0;
 
     private PlayerState m_playerState;
-
-
+    private float m_polarity=1f;
 
     private Vector3 m_appliedMovement = Vector3.zero;
     public float AppliedX { get => m_appliedMovement.x; set => m_appliedMovement.x = value; }
@@ -39,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         HandleInput();
         HandleGravity();
         HandleMovement();
-        Debug.Log(m_controller.isGrounded);
+        
     }
 
 
@@ -50,16 +49,23 @@ public class PlayerMovement : MonoBehaviour
 
         if (JumpConditions)
             Jump();
+
+        if (Input.GetKeyDown(KeyCode.Z))
+            ChangePolarity();
     }
 
     private void CheckIsGrounded()
     {
-        if (m_controller.isGrounded)
+        if(m_playerState!= PlayerState.Magnet)
         {
-            m_playerState =PlayerState.Grounded;
-            return;
+            if (m_controller.isGrounded)
+            {
+                m_playerState =PlayerState.Grounded;
+                return;
+            }
+            m_playerState = PlayerState.Fall;
         }
-        m_playerState = PlayerState.Fall;
+        
     }
 
     private void Jump()
@@ -68,6 +74,10 @@ public class PlayerMovement : MonoBehaviour
         m_playerState=PlayerState.Jump;
     }
 
+    private void ChangePolarity()
+    {
+        m_polarity = (m_polarity>0) ? -1 : 1;
+    }
    
     private void HandleMovement()
     {
@@ -81,9 +91,17 @@ public class PlayerMovement : MonoBehaviour
     {
         if (m_playerState== PlayerState.Grounded)
         {
-            AppliedY = -1f;
+            AppliedY = -0.5f;
             return;
         }
+
+        if (m_playerState == PlayerState.Magnet)
+        {
+            Debug.Log(AppliedY);
+            AppliedY += m_magnetForce*m_polarity *Time.deltaTime;
+            return;
+        }
+
             AppliedY += m_gravity * Time.deltaTime;
     }
     private bool JumpConditions
@@ -93,10 +111,24 @@ public class PlayerMovement : MonoBehaviour
             bool[] conditions =
             {
                     Input.GetKeyDown(KeyCode.Space),
-                    m_playerState == PlayerState.Grounded
+                    //m_playerState == PlayerState.Grounded
+                    m_controller.isGrounded
                 };
 
             return AideMath.AndCheck(conditions);
         }
     }
+
+
+    public void MagnetState( float magnetForce)
+    {
+        m_playerState = PlayerState.Magnet;
+        m_magnetForce = magnetForce;
+    }
+    public void MagnetQuit()
+    {
+        m_playerState = PlayerState.Fall;
+        m_magnetForce = 0f;
+    }
+
 }
