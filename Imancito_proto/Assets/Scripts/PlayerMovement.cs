@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
 {
     
     [Foldout("Componentes"),SerializeField] private CharacterController m_controller;
+    [SerializeField] private GameObject m_rotation;
     
     [Foldout("Variables"),SerializeField] private float m_speed;
     [SerializeField] private float m_jumpForce;
@@ -49,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (JumpConditions)
             Jump();
+
 
         if (Input.GetKeyDown(KeyCode.Z))
             ChangePolarity();
