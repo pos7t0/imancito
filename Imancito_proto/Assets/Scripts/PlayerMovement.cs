@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float m_gravity= -20f;
     [SerializeField] public float m_magnetForce= 0;
     [SerializeField] private Texture[] textures;
+    [SerializeField] private float m_lookSensitivy;
 
     private PlayerState m_playerState;
     private float m_polarity=1f;
@@ -26,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
     public float AppliedX { get => m_appliedMovement.x; set => m_appliedMovement.x = value; }
     public float AppliedZ { get => m_appliedMovement.z; set => m_appliedMovement.z = value; }
     public float AppliedY { get => m_appliedMovement.y; set => m_appliedMovement.y = value; }
+
+    public float m_mouseX;
 
     private readonly InputAxis2D m_move = new();
 
@@ -44,11 +47,16 @@ public class PlayerMovement : MonoBehaviour
         
     }
 
+    #region Inputs
+
+    
 
     private void HandleInput()
     {
         AppliedX = m_move.X;
         AppliedZ = m_move.Y;
+        m_mouseX = Input.GetAxis("Mouse X");
+
 
         if (JumpConditions)
             Jump();
@@ -57,6 +65,47 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z))
             ChangePolarity();
     }
+
+    #endregion
+
+    #region Saltar
+    private void Jump()
+    {
+        AppliedY = m_jumpForce;
+        m_playerState=PlayerState.Jump;
+    }
+    private bool JumpConditions
+    {
+        get
+        {
+            bool[] conditions =
+            {
+                    Input.GetKeyDown(KeyCode.Space),
+                    //m_playerState == PlayerState.Grounded
+                    m_controller.isGrounded
+                };
+
+            return AideMath.AndCheck(conditions);
+        }
+    }
+
+    #endregion
+    
+
+    private void HandleMovement()
+    {
+
+        
+        transform.Rotate(0f,m_mouseX*m_lookSensitivy,0f);
+
+        Vector3 currVector = transform.rotation*m_appliedMovement;
+        
+            
+        m_controller.Move(Time.deltaTime*m_speed*currVector);
+    }
+
+
+    #region Gravedad
 
     private void CheckIsGrounded()
     {
@@ -70,34 +119,6 @@ public class PlayerMovement : MonoBehaviour
             m_playerState = PlayerState.Fall;
         }
         
-    }
-
-    private void Jump()
-    {
-        AppliedY = m_jumpForce;
-        m_playerState=PlayerState.Jump;
-    }
-
-    private void ChangePolarity()
-    {
-        m_polarity = (m_polarity>0) ? -1 : 1;
-        if (m_polarity > 0)
-        {
-            targetObject.mainTexture = textures[0];
-            Debug.Log("hola");
-        }
-        else
-        {
-            targetObject.mainTexture = textures[1];
-        }
-    }
-   
-    private void HandleMovement()
-    {
-        Vector3 currVector = m_appliedMovement;
-        
-            
-        m_controller.Move(Time.deltaTime*m_speed*currVector);
     }
 
     private void HandleGravity()
@@ -117,21 +138,10 @@ public class PlayerMovement : MonoBehaviour
 
             AppliedY += m_gravity * Time.deltaTime;
     }
-    private bool JumpConditions
-    {
-        get
-        {
-            bool[] conditions =
-            {
-                    Input.GetKeyDown(KeyCode.Space),
-                    //m_playerState == PlayerState.Grounded
-                    m_controller.isGrounded
-                };
 
-            return AideMath.AndCheck(conditions);
-        }
-    }
+    #endregion
 
+    #region Mecanica
 
     public void MagnetState( float magnetForce)
     {
@@ -143,5 +153,21 @@ public class PlayerMovement : MonoBehaviour
         m_playerState = PlayerState.Fall;
         m_magnetForce = 0f;
     }
+
+    private void ChangePolarity()
+    {
+        m_polarity = (m_polarity > 0) ? -1 : 1;
+        if (m_polarity > 0)
+        {
+            targetObject.mainTexture = textures[0];
+
+        }
+        else
+        {
+            targetObject.mainTexture = textures[1];
+        }
+    }
+
+    #endregion
 
 }
