@@ -3,6 +3,15 @@ namespace Code
     public enum PlayerState
     {
         Grounded,
-        Jump
+        Jump,
+        Fall
+    }
+
+    public enum TypeGravity
+    {
+        InitialJump,
+        JumpGravity,
+        FallGravity,
+        MaxFallSpeed
     }
 }

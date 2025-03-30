@@ -5,15 +5,20 @@ using AideTool.Extensions;
 using Code;
 using Core.Input;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class PlayerMovement : MonoBehaviour
 {
     
     [Foldout("Componentes"),SerializeField] private CharacterController m_controller;
+    
     [Foldout("Variables"),SerializeField] private float m_speed;
-    [SerializeField] private float m_fall;
-    
-    
+    [SerializeField] private float m_jumpForce;
+    [SerializeField] private float m_gravity= -20f;
+
+    private PlayerState m_playerState;
+
+
 
     private Vector3 m_appliedMovement = Vector3.zero;
     public float AppliedX { get => m_appliedMovement.x; set => m_appliedMovement.x = value; }
@@ -24,45 +29,74 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnMovement(InputAction.CallbackContext context) => m_move.SetValues(context);
 
+
+
+
     // Update is called once per frame
     void Update()
     {
+        CheckIsGrounded();
         HandleInput();
+        HandleGravity();
         HandleMovement();
-        CheckGravity();
+        Debug.Log(m_controller.isGrounded);
     }
+
 
     private void HandleInput()
     {
         AppliedX = m_move.X;
         AppliedZ = m_move.Y;
 
-        if (Input.GetKey(KeyCode.Space))
-        {
-
-        }
-            
+        if (JumpConditions)
+            Jump();
     }
 
-    private void CheckGravity()
+    private void CheckIsGrounded()
     {
         if (m_controller.isGrounded)
         {
-            AppliedY = 0f;
+            m_playerState =PlayerState.Grounded;
             return;
         }
-            
-
-
-        float previousYSpeed = AppliedY;
-        AppliedY = previousYSpeed + m_fall;
-
+        m_playerState = PlayerState.Fall;
     }
+
+    private void Jump()
+    {
+        AppliedY = m_jumpForce;
+        m_playerState=PlayerState.Jump;
+    }
+
+   
     private void HandleMovement()
     {
         Vector3 currVector = m_appliedMovement;
-        Vector3 movement = new Vector3(Input.GetAxis("Horizontal"),1, Input.GetAxis("Vertical")) ;
-
+        
+            
         m_controller.Move(Time.deltaTime*m_speed*currVector);
+    }
+
+    private void HandleGravity()
+    {
+        if (m_playerState== PlayerState.Grounded)
+        {
+            AppliedY = -1f;
+            return;
+        }
+            AppliedY += m_gravity * Time.deltaTime;
+    }
+    private bool JumpConditions
+    {
+        get
+        {
+            bool[] conditions =
+            {
+                    Input.GetKeyDown(KeyCode.Space),
+                    m_playerState == PlayerState.Grounded
+                };
+
+            return AideMath.AndCheck(conditions);
+        }
     }
 }
