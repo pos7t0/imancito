@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
         HandleInput();
         HandleGravity();
         HandleMovement();
-        
+        //Debug.Log(m_playerState);
     }
 
     #region Inputs
@@ -131,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (m_playerState == PlayerState.Magnet)
         {
-            Debug.Log(AppliedY);
+            
             AppliedY += m_magnetForce*m_polarity *Time.deltaTime;
             return;
         }
