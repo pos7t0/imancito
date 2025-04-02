@@ -19,6 +19,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public float m_magnetForce= 0;
     [SerializeField] private float m_lookSensitivy;
 
+    [Foldout("Atraer"), SerializeField] private float m_attractorStrength = 5f;
+    [SerializeField] private float m_attractorRanged = 5f;
+
     
 
     private PlayerState m_playerState;
@@ -48,9 +51,14 @@ public class PlayerMovement : MonoBehaviour
         //Debug.Log(m_playerState);
     }
 
+    private void FixedUpdate()
+    {
+        HandleAttract();
+    }
+
     #region Inputs
 
-    
+
 
     private void HandleInput()
     {
@@ -161,16 +169,38 @@ public class PlayerMovement : MonoBehaviour
         if (m_polarity > 0)
         {
             m_meshRenderer.material = m_materials[0];
-            //targetObject.mainTexture = textures[0];
 
         }
         else
         {
             m_meshRenderer.material = m_materials[1];
-            //targetObject.mainTexture = textures[1];
         }
     }
 
+
+    private void HandleAttract()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position,m_attractorRanged);
+
+        foreach(Collider hit in hitColliders)
+        {
+            if (hit.CompareTag("Metal"))
+            {
+                Debug.Log("atraer???");
+                Vector3 forceDir = transform.position - hit.transform.position;
+                hit.GetComponent<Rigidbody>().AddForce(forceDir.normalized*m_attractorStrength*m_polarity);
+            }
+        }
+
+
+    }
+
     #endregion
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position,m_attractorRanged);
+    }
+
+
 
 }
