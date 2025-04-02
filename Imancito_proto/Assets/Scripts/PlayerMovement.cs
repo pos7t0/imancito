@@ -10,15 +10,16 @@ public class PlayerMovement : MonoBehaviour
 {
     
     [Foldout("Componentes"),SerializeField] private CharacterController m_controller;
-    [SerializeField] private Material targetObject;
-    private Renderer m_renderer;
+    [SerializeField] private MeshRenderer m_meshRenderer;
+    [SerializeField] private Material[] m_materials;
     
     [Foldout("Variables"),SerializeField] private float m_speed;
     [SerializeField] private float m_jumpForce;
     [SerializeField] private float m_gravity= -20f;
     [SerializeField] public float m_magnetForce= 0;
-    [SerializeField] private Texture[] textures;
     [SerializeField] private float m_lookSensitivy;
+
+    
 
     private PlayerState m_playerState;
     private float m_polarity=1f;
@@ -159,12 +160,14 @@ public class PlayerMovement : MonoBehaviour
         m_polarity = (m_polarity > 0) ? -1 : 1;
         if (m_polarity > 0)
         {
-            targetObject.mainTexture = textures[0];
+            m_meshRenderer.material = m_materials[0];
+            //targetObject.mainTexture = textures[0];
 
         }
         else
         {
-            targetObject.mainTexture = textures[1];
+            m_meshRenderer.material = m_materials[1];
+            //targetObject.mainTexture = textures[1];
         }
     }
 
