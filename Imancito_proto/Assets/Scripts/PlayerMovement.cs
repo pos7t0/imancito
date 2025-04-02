@@ -18,9 +18,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float m_gravity= -20f;
     [SerializeField] public float m_magnetForce= 0;
     [SerializeField] private float m_lookSensitivy;
+    [SerializeField] private float m_weight=5f;
 
     [Foldout("Atraer"), SerializeField] private float m_attractorStrength = 5f;
     [SerializeField] private float m_attractorRanged = 5f;
+    private float m_weightObject = 0;
 
     
 
@@ -48,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
         HandleInput();
         HandleGravity();
         HandleMovement();
-        //Debug.Log(m_playerState);
     }
 
     private void FixedUpdate()
@@ -71,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
             Jump();
 
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetMouseButtonDown(0))
             ChangePolarity();
     }
 
@@ -181,20 +182,24 @@ public class PlayerMovement : MonoBehaviour
     private void HandleAttract()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position,m_attractorRanged);
-
+        float numObject = 0f ;
         foreach(Collider hit in hitColliders)
         {
             if (hit.CompareTag("Metal"))
             {
-                Debug.Log("atraer???");
+
+                numObject++;
                 Vector3 forceDir = transform.position - hit.transform.position;
                 hit.GetComponent<Rigidbody>().AddForce(forceDir.normalized*m_attractorStrength*m_polarity);
             }
         }
-
+        m_weightObject =numObject;
 
     }
-
+    public float TotalWeight()
+    {
+        return m_weight+m_weightObject;
+    }
     #endregion
     private void OnDrawGizmos()
     {

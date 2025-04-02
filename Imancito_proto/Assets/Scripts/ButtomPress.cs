@@ -15,6 +15,7 @@ public class ButtomPress : MonoBehaviour
     [SerializeField] private UnityEvent m_open;
     [SerializeField] private MeshRenderer m_renderer;
     [SerializeField] private Material m_yellow;
+    [SerializeField] private float m_weightRequeriment;
     private bool m_enable=false;
 
     private void FixedUpdate()
@@ -35,8 +36,8 @@ public class ButtomPress : MonoBehaviour
         bool player=false;
         foreach (Collider col in cols)
         {
-            player = col.TryGetComponent(out PlayerMovement _);
-            if (!m_enable&& player)
+            player = col.TryGetComponent(out PlayerMovement playerWeight);
+            if (!m_enable&& player&& m_weightRequeriment<=playerWeight.TotalWeight())
             {
                 m_renderer.material = m_yellow;
                 m_enable=true;
