@@ -583,6 +583,37 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 7767982186281587985, guid: ce5683a4db41c9340bf9bfc312480c40, type: 3}
   m_PrefabInstance: {fileID: 1495444418240831199}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1961209424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1961209425}
+  m_Layer: 0
+  m_Name: Atractor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1961209425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1961209424}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 105146069}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1495444418240831199
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -700,9 +731,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4488025192368725208, guid: 6eaea91ae4031db43ab002b6fd6e9dfb, type: 3}
+      propertyPath: m_yOffset
+      value: 4.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4488025192368725208, guid: 6eaea91ae4031db43ab002b6fd6e9dfb, type: 3}
+      propertyPath: m_forceAtractment
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4488025192368725208, guid: 6eaea91ae4031db43ab002b6fd6e9dfb, type: 3}
+      propertyPath: m_triggerExtends.y
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5404346852531526996, guid: 6eaea91ae4031db43ab002b6fd6e9dfb, type: 3}
       propertyPath: m_Name
       value: Iman_Abajo
+      objectReference: {fileID: 0}
+    - target: {fileID: 5404346852531526996, guid: 6eaea91ae4031db43ab002b6fd6e9dfb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -777,6 +824,10 @@ PrefabInstance:
     - target: {fileID: 1777967486732130031, guid: 571d27607c68c8c4d8f45d54ac618d9d, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 3853959311301614217, guid: 571d27607c68c8c4d8f45d54ac618d9d, type: 3}
+      propertyPath: m_jumpForce
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3853959311301614217, guid: 571d27607c68c8c4d8f45d54ac618d9d, type: 3}
       propertyPath: targetObject
@@ -868,7 +919,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6035531303853565208, guid: 571d27607c68c8c4d8f45d54ac618d9d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1961209425}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 571d27607c68c8c4d8f45d54ac618d9d, type: 3}
 --- !u!1001 &5747168644250335821
@@ -882,6 +936,10 @@ PrefabInstance:
     - target: {fileID: 5251634236738181143, guid: 6ebd3ec873ee7a5438454401e1bc62d1, type: 3}
       propertyPath: m_Name
       value: Iman_Arriba
+      objectReference: {fileID: 0}
+    - target: {fileID: 5251634236738181143, guid: 6ebd3ec873ee7a5438454401e1bc62d1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5533209129152773157, guid: 6ebd3ec873ee7a5438454401e1bc62d1, type: 3}
       propertyPath: m_LocalPosition.x

@@ -15,16 +15,25 @@ public class MagnetPlataform : MonoBehaviour
     
 
     private PlayerMovement m_player = null;
-
-
+    private float Min
+    {
+        get => transform.position.y + (m_yOffset - m_triggerExtends.y);
+    }
+    private float Max
+    {
+        get => transform.position.y + (m_yOffset + m_triggerExtends.y);
+    }
 
 
     private void FixedUpdate()
     {
         Box trigger = new(transform.position +m_yOffset*Vector3.up, m_triggerExtends);
         Aide.DrawBox(trigger);
+        //Box trigger2 = new(transform.position + (m_yOffset+m_triggerExtends.y) * Vector3.up, new Vector3(1,1,1)) ;
+        //Aide.DrawBox(trigger2);
 
         
+
         Collider[] colliders = Physics.OverlapBox(transform.position + m_yOffset * Vector3.up, m_triggerExtends);
 
         HandleCollision(colliders);
@@ -35,22 +44,44 @@ public class MagnetPlataform : MonoBehaviour
     {
         bool exist=false;
         PlayerMovement previousPlayer = m_player; // Guarda la referencia anterior
+        float posY = 0f;
 
         foreach (Collider col in cols)
         {
+            
+            
             if (col.TryGetComponent(out m_player))
             {
+                posY = col.transform.position.y;
                 exist = true;
                 break;
             }
         }
+        float percent = Max - Min;
+        float force = m_forceAtractment;
+        Debug.Log((1f - (posY - Min) / percent));
+        if (exist)
+        {
+            if (m_sense==Magnet.Down)
+            {
+                if (!m_player.PlusPolarity())
+                    force = MagnetDownMenus(force, percent, posY);
+                else
+                    force = MagnetDownPlus(force, percent, posY);
+            }
+            else
+            {
+               
+            }
+            
 
-        //Debug.Log(exist);
+        }
+
 
         if (exist)
         {
             float factor = (m_sense==Magnet.Up) ? 1:-1;
-            m_player.MagnetState(m_forceAtractment*factor);
+            m_player.MagnetState(force * factor);
         }
         else if(previousPlayer != null)
         {
@@ -60,8 +91,42 @@ public class MagnetPlataform : MonoBehaviour
         }
 
 
-
     }
 
+
+    private float MagnetDownMenus(float force, float percent, float posY)
+    {
+        if (0.8f < (1f - (posY - Min) / percent))
+            force *= 2f;
+        if (0.5f < (1f - (posY - Min) / percent))
+            force *= 0.5f;
+        if (0.5f >= (1f - (posY - Min) / percent))
+        {
+            force = 0f;
+            
+        }
+        if (m_player != null)
+        {
+            if (m_player.AppliedY < 0)
+            {
+                force = m_forceAtractment;
+            }
+
+        }
+        return force;
+
+    }
+    
+    private float MagnetDownPlus(float force, float percent, float posY)
+    {
+        force *= 5;
+        if (0.7f <= (1f - (posY - Min) / percent))
+        {
+            force = 0f;
+        }
+        
+        return force;
+
+    }
 
 }

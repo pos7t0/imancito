@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     
     [Foldout("Variables"),SerializeField] private float m_speed;
     [SerializeField] private float m_jumpForce;
-    [SerializeField] private float m_gravity= -20f;
+    [SerializeField] private float m_gravity= -10f;
     [SerializeField] public float m_magnetForce= 0;
     [SerializeField] private float m_lookSensitivy;
     [SerializeField] private float m_weight=5f;
@@ -81,8 +81,12 @@ public class PlayerMovement : MonoBehaviour
     #region Saltar
     private void Jump()
     {
-        AppliedY = m_jumpForce;
         m_playerState=PlayerState.Jump;
+        float previousYSpeed = AppliedY;
+        float nextYSpeed = AppliedY + m_jumpForce;
+        float avgYSpeed = (previousYSpeed + nextYSpeed) * 0.5f;
+        AppliedY = avgYSpeed;
+        
     }
     private bool JumpConditions
     {
@@ -139,14 +143,23 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        if (m_playerState == PlayerState.Magnet)
-        {
-            
-            AppliedY += m_magnetForce*m_polarity *Time.deltaTime;
-            return;
-        }
+        
 
-            AppliedY += m_gravity * Time.deltaTime;
+        float factor = 0;
+
+        if (m_playerState == PlayerState.Magnet)
+            factor =  m_magnetForce * m_polarity;
+        if (m_playerState == PlayerState.Jump)
+            factor =m_jumpForce;
+        if (m_playerState == PlayerState.Fall)
+            factor = m_gravity;
+
+        float previousYSpeed = AppliedY;
+        float nextYSpeed = AppliedY + (factor*Time.deltaTime);
+        float avgYSpeed = (previousYSpeed + nextYSpeed) * 0.5f;
+        AppliedY = avgYSpeed;
+        //Debug.Log(factor);
+        //AppliedY += m_gravity * Time.deltaTime;
     }
 
     #endregion
@@ -162,6 +175,10 @@ public class PlayerMovement : MonoBehaviour
     {
         m_playerState = PlayerState.Fall;
         m_magnetForce = 0f;
+    }
+    public bool PlusPolarity()
+    {
+        return (m_polarity > 0);
     }
 
     private void ChangePolarity()
