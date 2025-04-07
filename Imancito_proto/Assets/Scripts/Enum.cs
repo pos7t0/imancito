@@ -8,10 +8,10 @@ namespace Code
         Magnet
     }
 
-    public enum PlayerMechanics
+    public enum PowerUps
     {
-        Attract,
-        Repel
+        Nothing,
+        Cobelt,
     }
 
     public enum Magnet

@@ -5,28 +5,56 @@ using AideTool.Extensions;
 using Code;
 using Core.Input;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
-    
-    [Foldout("Componentes"),SerializeField] private CharacterController m_controller;
+
+    [Foldout("Componentes"), SerializeField] private CharacterController m_controller;
     [SerializeField] private MeshRenderer m_meshRenderer;
     [SerializeField] private Material[] m_materials;
-    
-    [Foldout("Variables"),SerializeField] private float m_speed;
+    [SerializeField] private Material m_currentMaterial;
+
+    [Foldout("Variables"), SerializeField] private float m_speed;
     [SerializeField] private float m_jumpForce;
-    [SerializeField] private float m_gravity= -10f;
-    [SerializeField] public float m_magnetForce= 0;
+    [SerializeField] private float m_gravity = -10f;
+    [SerializeField] public float m_magnetForce = 0;
     [SerializeField] private float m_lookSensitivy;
-    [SerializeField] private float m_weight=5f;
+    [SerializeField] private float m_weight = 5f;
 
     [Foldout("Atraer"), SerializeField] private float m_attractorStrength = 5f;
     [SerializeField] private float m_attractorRanged = 5f;
     private float m_weightObject = 0;
 
+    [SerializeField] private float m_extraTime;
+    private bool m_blinking=false;
+
     
 
     private PlayerState m_playerState;
+    private PowerUps m_powerUp;
+    private float m_timer=0f;
+    private float TimerPowerUp
+    {
+        get => m_timer;
+        set
+        {
+            m_timer = Mathf.Max(0, value);
+
+            // Luego decidir el estado del power-up
+            if (m_timer > 0)
+            {
+                m_powerUp = PowerUps.Cobelt;
+            }
+            else if(!m_blinking&& m_powerUp==PowerUps.Cobelt) // Cuando llega a 0
+            {
+                m_blinking = true;
+                StartBlinking(2f, 0.2f);
+                
+            }
+
+        }
+    }
     private float m_polarity=1f;
 
     private Vector3 m_appliedMovement = Vector3.zero;
@@ -50,10 +78,17 @@ public class PlayerMovement : MonoBehaviour
         HandleInput();
         HandleGravity();
         HandleMovement();
+        HandlePowerUp();
+        
+    }
+    private void LateUpdate()
+    {
+        
     }
 
     private void FixedUpdate()
     {
+        if(m_powerUp==PowerUps.Nothing)
         HandleAttract();
     }
 
@@ -181,18 +216,31 @@ public class PlayerMovement : MonoBehaviour
         return (m_polarity > 0);
     }
 
+    private void RecoveryMaterial()
+    {
+        m_meshRenderer.material = m_currentMaterial;
+    }
+
     private void ChangePolarity()
     {
-        m_polarity = (m_polarity > 0) ? -1 : 1;
-        if (m_polarity > 0)
+        if (PowerUps.Nothing==m_powerUp)
         {
-            m_meshRenderer.material = m_materials[0];
+            m_polarity = (m_polarity > 0) ? -1 : 1;
 
+            if (m_polarity > 0)
+            {
+                m_currentMaterial= m_materials[0];
+                
+
+            }
+            else
+            {
+                m_currentMaterial = m_materials[1];
+            }
+
+            RecoveryMaterial();
         }
-        else
-        {
-            m_meshRenderer.material = m_materials[1];
-        }
+        
     }
 
 
@@ -218,6 +266,66 @@ public class PlayerMovement : MonoBehaviour
         return m_weight+m_weightObject;
     }
     #endregion
+
+    #region PowerUp
+
+    private void HandlePowerUp()
+    {
+        if (TimerPowerUp!= 0)
+        {
+            TimerPowerUp -= Time.deltaTime;
+            
+        }
+            
+    }
+
+    public void PowerUpCobelt(float time)
+    {
+        m_timer = time;
+        m_meshRenderer.material = m_materials[2];
+    }
+    public PowerUps PowerUpState()
+    {
+        return m_powerUp;
+    }
+
+    public void StartBlinking(float blinkDuration, float blinkInterval)
+    {
+        StartCoroutine(BlinkCoroutine(blinkDuration, blinkInterval));
+    }
+
+    private IEnumerator BlinkCoroutine(float blinkDuration, float blinkInterval)
+    {
+        float timer = 0f;
+        bool isBlinking = false;
+
+        while (timer < blinkDuration)
+        {
+            // Alternar entre materiales
+            if (isBlinking)
+                RecoveryMaterial();
+            else
+                m_meshRenderer.material = m_materials[2];
+
+            isBlinking = !isBlinking;
+
+            // Esperar un poco
+            yield return new WaitForSeconds(blinkInterval);
+
+            // Avanzar el tiempo
+            timer += blinkInterval;
+        }
+
+        // Al terminar, dejar el material normal
+        m_powerUp = PowerUps.Nothing;
+        m_blinking = false;
+        RecoveryMaterial();
+    }
+
+
+    #endregion
+
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position,m_attractorRanged);

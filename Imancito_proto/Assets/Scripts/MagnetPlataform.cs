@@ -35,7 +35,7 @@ public class MagnetPlataform : MonoBehaviour
         
 
         Collider[] colliders = Physics.OverlapBox(transform.position + m_yOffset * Vector3.up, m_triggerExtends);
-
+        
         HandleCollision(colliders);
         
     }
@@ -52,14 +52,19 @@ public class MagnetPlataform : MonoBehaviour
             
             if (col.TryGetComponent(out m_player))
             {
+                if (m_player.PowerUpState()==PowerUps.Cobelt)
+                {
+                    return;
+                }
                 posY = col.transform.position.y;
                 exist = true;
                 break;
             }
         }
+        
         float percent = Max - Min;
         float force = m_forceAtractment;
-        Debug.Log((1f - (posY - Min) / percent));
+        //Debug.Log((1f - (posY - Min) / percent));
         if (exist)
         {
             if (m_sense==Magnet.Down)
@@ -71,7 +76,10 @@ public class MagnetPlataform : MonoBehaviour
             }
             else
             {
-               
+                if (!m_player.PlusPolarity())
+                    force = MagnetUpMenus(force, percent, posY);
+                else
+                    force = MagnetUpPlus(force, percent, posY);
             }
             
 
@@ -125,6 +133,42 @@ public class MagnetPlataform : MonoBehaviour
             force = 0f;
         }
         
+        return force;
+
+    }
+    
+    private float MagnetUpMenus(float force, float percent, float posY)
+    {
+        force *= 5;
+        if (0.7f <= (1f - (posY - Min) / percent))
+        {
+            force = 0f;
+        }
+
+        return force;
+        
+
+    }
+    
+    private float MagnetUpPlus(float force, float percent, float posY)
+    {
+        if (0.8f < (1f - (posY - Min) / percent))
+            force *= 2f;
+        if (0.5f < (1f - (posY - Min) / percent))
+            force *= 1.2f;
+        if (0.5f >= (1f - (posY - Min) / percent))
+        {
+            force = 0f;
+
+        }
+        if (m_player != null)
+        {
+            if (m_player.AppliedY < 0)
+            {
+                force = m_forceAtractment;
+            }
+
+        }
         return force;
 
     }
