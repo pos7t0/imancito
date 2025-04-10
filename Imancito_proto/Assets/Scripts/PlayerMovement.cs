@@ -12,8 +12,10 @@ public class PlayerMovement : MonoBehaviour
 
     [Foldout("Componentes"), SerializeField] private CharacterController m_controller;
     [SerializeField] private MeshRenderer m_meshRenderer;
-    [SerializeField] private Material[] m_materials;
+    [SerializeField] private Material[] m_materialsRed;
+    [SerializeField] private Material[] m_materialsBlue;
     [SerializeField] private Material m_currentMaterial;
+    [SerializeField] private GameObject m_shield;
 
     [Foldout("Variables"), SerializeField] private float m_speed;
     [SerializeField] private float m_jumpForce;
@@ -24,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Foldout("Atraer"), SerializeField] private float m_attractorStrength = 5f;
     [SerializeField] private float m_attractorRanged = 5f;
+    [SerializeField] private int m_rustyStage = 0;
     private float m_weightObject = 0;
 
     [SerializeField] private float m_extraTime;
@@ -55,6 +58,7 @@ public class PlayerMovement : MonoBehaviour
 
         }
     }
+    
     private float m_polarity=1f;
 
     private Vector3 m_appliedMovement = Vector3.zero;
@@ -223,23 +227,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void ChangePolarity()
     {
-        if (PowerUps.Nothing==m_powerUp)
-        {
             m_polarity = (m_polarity > 0) ? -1 : 1;
 
             if (m_polarity > 0)
             {
-                m_currentMaterial= m_materials[0];
+                m_currentMaterial= m_materialsRed[m_rustyStage];
                 
 
             }
             else
             {
-                m_currentMaterial = m_materials[1];
+                m_currentMaterial = m_materialsBlue[m_rustyStage];
             }
 
             RecoveryMaterial();
-        }
         
     }
 
@@ -282,7 +283,7 @@ public class PlayerMovement : MonoBehaviour
     public void PowerUpCobelt(float time)
     {
         m_timer = time;
-        m_meshRenderer.material = m_materials[2];
+        m_shield.SetActive(true);
     }
     public PowerUps PowerUpState()
     {
@@ -303,9 +304,10 @@ public class PlayerMovement : MonoBehaviour
         {
             // Alternar entre materiales
             if (isBlinking)
-                RecoveryMaterial();
+                //RecoveryMaterial();
+                m_shield.SetActive(false);
             else
-                m_meshRenderer.material = m_materials[2];
+                m_shield.SetActive(true);
 
             isBlinking = !isBlinking;
 
@@ -319,7 +321,8 @@ public class PlayerMovement : MonoBehaviour
         // Al terminar, dejar el material normal
         m_powerUp = PowerUps.Nothing;
         m_blinking = false;
-        RecoveryMaterial();
+        //RecoveryMaterial();
+        m_shield.SetActive(false);
     }
 
 
