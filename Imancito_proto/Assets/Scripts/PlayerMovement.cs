@@ -6,6 +6,7 @@ using Code;
 using Core.Input;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -32,8 +33,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float m_extraTime;
     private bool m_blinking=false;
 
-    
+    [Foldout("Elementos de Muerte?"), SerializeField] private float m_durationDead;
+    [SerializeField] private float m_maxDuration;
+    [SerializeField] private bool m_isWater=false;
 
+
+    private bool m_stopGame=false;
     private PlayerState m_playerState;
     private PowerUps m_powerUp;
     private float m_timer=0f;
@@ -58,6 +63,50 @@ public class PlayerMovement : MonoBehaviour
 
         }
     }
+
+    private float TimerLife
+    {
+        get => m_durationDead;
+        set 
+        {
+            m_durationDead = value;
+
+            if (m_durationDead>m_maxDuration)
+            {
+                m_durationDead = m_maxDuration;
+                return;
+            }
+
+            if (m_durationDead > 8f)
+            {
+                m_rustyStage = 0;
+            }
+            else if (m_durationDead > 6f)
+            {
+                m_rustyStage = 1;
+            }
+            else if (m_durationDead > 4f)
+            {
+                m_rustyStage = 2;
+            }
+            else if (m_durationDead > 2f)
+            {
+                m_rustyStage = 3;
+            }
+            else if (m_durationDead <=0f)
+            {
+                m_rustyStage = 4;
+                m_stopGame = true;
+            }
+
+            if(m_stopGame && m_durationDead < -2f)
+                SceneManager.LoadScene(1);
+            
+            ChangePolarity(false);
+
+
+        }
+    }
     
     private float m_polarity=1f;
 
@@ -78,12 +127,19 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckIsGrounded();
-        HandleInput();
-        HandleGravity();
-        HandleMovement();
-        HandlePowerUp();
+        if (!m_stopGame)
+        {
+            CheckIsGrounded();
+            HandleInput();
+            HandleGravity();
+            HandleMovement();
+        }
         
+        HandlePowerUp();
+        HandleDurationDead();
+        Debug.Log(TimerLife);
+        //Debug.Log(m_isWater);
+
     }
     private void LateUpdate()
     {
@@ -112,7 +168,7 @@ public class PlayerMovement : MonoBehaviour
 
 
         if (Input.GetMouseButtonDown(0))
-            ChangePolarity();
+            ChangePolarity(true);
     }
 
     #endregion
@@ -220,27 +276,23 @@ public class PlayerMovement : MonoBehaviour
         return (m_polarity > 0);
     }
 
-    private void RecoveryMaterial()
+
+    private void ChangePolarity(bool change)
     {
-        m_meshRenderer.material = m_currentMaterial;
-    }
+        if(change)
+        m_polarity = (m_polarity > 0) ? -1 : 1;
 
-    private void ChangePolarity()
-    {
-            m_polarity = (m_polarity > 0) ? -1 : 1;
-
-            if (m_polarity > 0)
-            {
-                m_currentMaterial= m_materialsRed[m_rustyStage];
-                
-
-            }
-            else
-            {
-                m_currentMaterial = m_materialsBlue[m_rustyStage];
-            }
-
-            RecoveryMaterial();
+        if (m_polarity > 0)
+        {
+            m_meshRenderer.material = m_materialsRed[m_rustyStage];
+            
+        
+        }
+        else
+        {
+            m_meshRenderer.material = m_materialsBlue[m_rustyStage];
+        }
+        
         
     }
 
@@ -327,6 +379,29 @@ public class PlayerMovement : MonoBehaviour
 
 
     #endregion
+
+    #region Sistema de Muerte
+
+    public void IsTouchWater(bool isTouch)
+    {
+        m_isWater = isTouch;
+    }
+
+    private void HandleDurationDead()
+    {
+        if (m_isWater)
+        {
+            TimerLife -= Time.deltaTime;
+            Debug.Log("HOLAAAAA");
+        }
+        if (!m_isWater&&TimerLife!=m_maxDuration)
+        {
+            TimerLife += Time.deltaTime;
+        }
+    }
+
+    #endregion
+
 
 
     private void OnDrawGizmos()
