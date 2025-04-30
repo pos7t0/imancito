@@ -34,10 +34,12 @@ public class ButtomPress : MonoBehaviour
     {
 
         bool player=false;
+        bool metal = false;
         foreach (Collider col in cols)
         {
             player = col.TryGetComponent(out PlayerMovement playerWeight);
-            if (!m_enable&& player&& m_weightRequeriment<=playerWeight.TotalWeight())
+            metal = col.TryGetComponent(out Metal metalWeight);
+            if (!m_enable&& player&& m_weightRequeriment<=playerWeight.TotalWeight()|| !m_enable && metal && m_weightRequeriment <=metalWeight.Weight())
             {
                 m_renderer.material = m_yellow;
                 m_enable=true;

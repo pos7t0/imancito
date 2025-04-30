@@ -4,16 +4,20 @@ using AideTool.ExtendedEditor;
 using AideTool.Geometry;
 using AideTool.Extensions;
 using Code;
+using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class MagnetPlataform : MonoBehaviour
 {
     [SerializeField] private Magnet m_sense;
     [SerializeField] private float m_forceAtractment;
+    [SerializeField] private bool m_isKiller=false;
 
     [Foldout("Cubo_1"), SerializeField] private float m_yOffset;
     [SerializeField] private Vector3 m_triggerExtends;
-    
 
+    private bool m_activationKiller = false;
     private PlayerMovement m_player = null;
     private float Min
     {
@@ -80,6 +84,8 @@ public class MagnetPlataform : MonoBehaviour
                     force = MagnetUpMenus(force, percent, posY);
                 else
                     force = MagnetUpPlus(force, percent, posY);
+
+                
             }
             
 
@@ -107,20 +113,21 @@ public class MagnetPlataform : MonoBehaviour
         if (0.8f < (1f - (posY - Min) / percent))
             force *= 2f;
         if (0.5f < (1f - (posY - Min) / percent))
-            force *= 0.5f;
-        if (0.5f >= (1f - (posY - Min) / percent))
+            force *= 1.2f;
+        if (0.1f < (1f - (posY - Min) / percent))
+        {
+            force *= 0.3f;
+        }
+        if (0f >= (1f - (posY - Min) / percent))
         {
             force = 0f;
-            
-        }
-        if (m_player != null)
-        {
-            if (m_player.AppliedY < 0)
+            if (m_isKiller && !m_activationKiller)
             {
-                force = m_forceAtractment;
+                m_activationKiller = true;
+                StartCoroutine(RestartGame());
             }
-
         }
+        
         return force;
 
     }
@@ -128,11 +135,18 @@ public class MagnetPlataform : MonoBehaviour
     private float MagnetDownPlus(float force, float percent, float posY)
     {
         force *= 5;
-        if (0.7f <= (1f - (posY - Min) / percent))
+        if (0.9f <= (1f - (posY - Min) / percent))
         {
             force = 0f;
         }
-        
+
+
+        if (m_player.CheckAnyFLoor() && m_isKiller && !m_activationKiller)
+        {
+            m_activationKiller = true;
+            StartCoroutine(RestartGame());
+        }
+
         return force;
 
     }
@@ -140,26 +154,43 @@ public class MagnetPlataform : MonoBehaviour
     private float MagnetUpMenus(float force, float percent, float posY)
     {
         force *= 5;
-        if (0.7f <= (1f - (posY - Min) / percent))
+        if (1f <= (1f - (posY - Min) / percent))
         {
             force = 0f;
         }
 
+        if (m_player.CheckAnyFLoor() && m_isKiller && !m_activationKiller)
+        {
+            m_activationKiller = true;
+            StartCoroutine(RestartGame());
+        }
+
+
         return force;
         
+
 
     }
     
     private float MagnetUpPlus(float force, float percent, float posY)
     {
         if (0.8f < (1f - (posY - Min) / percent))
-            force *= 2f;
-        if (0.5f < (1f - (posY - Min) / percent))
             force *= 1.2f;
-        if (0.5f >= (1f - (posY - Min) / percent))
+        if (0.5f < (1f - (posY - Min) / percent))
+            force *= 2f;
+        if (0.1f <(1f - (posY - Min) / percent))
+        {
+            force *= 2.2f;
+            
+        }
+        if (0.1f >= (1f - (posY - Min) / percent))
         {
             force = 0f;
-
+            if (m_isKiller && !m_activationKiller)
+            {
+                m_activationKiller = true;
+                StartCoroutine(RestartGame());
+            }
         }
         if (m_player != null)
         {
@@ -172,5 +203,15 @@ public class MagnetPlataform : MonoBehaviour
         return force;
 
     }
+
+    private IEnumerator RestartGame()
+    {
+        m_player.StopController();
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene(1);
+    }
+
+
+
 
 }

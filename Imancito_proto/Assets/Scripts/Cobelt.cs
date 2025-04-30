@@ -10,7 +10,7 @@ public class Cobelt : MonoBehaviour
         if (other.TryGetComponent<PlayerMovement>(out _))
         {
             other.GetComponent<PlayerMovement>().PowerUpCobelt(m_timePowerUp);
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
     }
 }

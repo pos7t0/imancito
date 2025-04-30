@@ -122,23 +122,24 @@ public class PlayerMovement : MonoBehaviour
     public void OnMovement(InputAction.CallbackContext context) => m_move.SetValues(context);
 
 
-
+    private void Start()
+    {
+        gameObject.transform.position =CheckPointManager.Instance.LoadCheckpoint();
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (!m_stopGame)
-        {
+        
+
             CheckIsGrounded();
+        if (!m_stopGame)
             HandleInput();
             HandleGravity();
             HandleMovement();
-        }
-        
+        //Debug.Log("ApliedY: "+AppliedY);
         HandlePowerUp();
         HandleDurationDead();
-        Debug.Log(TimerLife);
-        //Debug.Log(m_isWater);
 
     }
     private void LateUpdate()
@@ -206,7 +207,11 @@ public class PlayerMovement : MonoBehaviour
 
         
         transform.Rotate(0f,m_mouseX*m_lookSensitivy,0f);
-
+        if (m_stopGame)
+        {
+            AppliedX = 0f;
+            AppliedZ = 0f;
+        }
         Vector3 currVector = transform.rotation*m_appliedMovement;
         
             
@@ -215,6 +220,11 @@ public class PlayerMovement : MonoBehaviour
 
 
     #region Gravedad
+
+    public bool CheckAnyFLoor()
+    {
+        return m_controller.isGrounded;
+    }
 
     private void CheckIsGrounded()
     {
@@ -248,12 +258,17 @@ public class PlayerMovement : MonoBehaviour
             factor =m_jumpForce;
         if (m_playerState == PlayerState.Fall)
             factor = m_gravity;
+        if (factor == 0f)
+        {
+            AppliedY = 0;
+            return;
+        }
 
         float previousYSpeed = AppliedY;
         float nextYSpeed = AppliedY + (factor*Time.deltaTime);
         float avgYSpeed = (previousYSpeed + nextYSpeed) * 0.5f;
         AppliedY = avgYSpeed;
-        //Debug.Log(factor);
+        //Debug.Log("factor: "+factor);
         //AppliedY += m_gravity * Time.deltaTime;
     }
 
@@ -387,12 +402,17 @@ public class PlayerMovement : MonoBehaviour
         m_isWater = isTouch;
     }
 
+    public void StopController()
+    {
+        m_stopGame=true;
+    }
+
     private void HandleDurationDead()
     {
         if (m_isWater)
         {
             TimerLife -= Time.deltaTime;
-            Debug.Log("HOLAAAAA");
+            //Debug.Log("HOLAAAAA");
         }
         if (!m_isWater&&TimerLife!=m_maxDuration)
         {

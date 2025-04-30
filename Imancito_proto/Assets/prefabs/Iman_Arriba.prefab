@@ -123,5 +123,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_sense: 0
   m_forceAtractment: 2
+  m_isKiller: 0
   m_yOffset: -3
   m_triggerExtends: {x: 3.2, y: 3, z: 1.5}
